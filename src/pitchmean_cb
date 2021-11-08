@@ -1,0 +1,62 @@
+
+# Script form
+form Compute pitch of audio files
+	comment Directory of sound files
+	text sound_directory /Users/cerenbattal/Documents/MATLAB/Spatiotopy_fMRIcode/AlSa/
+	sentence Sound_extension .wav
+	comment Full path of text file with results
+	text resultfile /Users/cerenbattal/Cerens_files/fMRI/Processed/Spatio_pRF/SC/f0_AlSa.csv
+
+endform
+
+# Create listing of all sound files
+Create Strings as file list... list 'sound_directory$'*'sound_extension$'
+numberFiles = Get number of strings
+
+# Check if the result file already exists
+if fileReadable (resultfile$)
+	pause The resultfile 'resultfile$' already exists! Overwrite?
+	filedelete 'resultfile$'
+endif
+
+
+# Create row with column titles to the result file
+titleline$ = "Filename';'CoG';'Std';'Skew';'Kurtois';'Points';'Dur''newline$'"
+fileappend "'resultfile$'" 'titleline$'
+
+# Compute all the sound files
+for ifile to numberFiles
+
+	# Open audio file
+	filename$ = Get string... ifile
+
+	# Read file and retrieve details
+	Read from file... 'sound_directory$''filename$'
+	soundname$ = selected$ ("Sound", 1)
+	dur = Get total duration
+
+	To Spectrum... Fast
+	spectrum = selected("Spectrum")
+	select 'spectrum'
+	CoG = Get centre of gravity... 2
+	sdev = Get standard deviation... 2
+	skew = Get skewness... 2
+	kurt = Get kurtosis... 2	
+
+	To PointProcess
+	points = Get number of points
+	Remove
+
+	# Save result to csv file
+	resultline$ = "'soundname$',''CoG:2'',''Stdev:2'',''skew:2'',''kurt:2'',''points:2'',''dur:2'''newline$'"
+	fileappend "'resultfile$'" 'resultline$'
+
+	# Remove temp objects from object's list
+	select Sound 'soundname$'
+	plus Spectrum 'soundname$'
+	Remove
+	select Strings list
+
+	# Next audio file
+endfor
+Remove
