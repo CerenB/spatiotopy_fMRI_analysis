@@ -50,29 +50,9 @@ switch action
             % insert zeros in to gaps
             tempArray = [stimArrayWithZeros(1:48); zeroArray];
             tempArray = [tempArray; stimArrayWithZeros(49:96); zeroArray];
-            stimArrayWithZeros = [tempArray; stimArrayWithZeros(97:end); zeroArray; 0];
+            stimTR = [tempArray; stimArrayWithZeros(97:end); zeroArray; 0];
             
-            %% with TR inserted: stim_tr
-            
-            volumes = 1:160;
-            stimTR = stimArrayWithZeros;
-            
-            %% with 0.25s stepsize : stim_ms
-            % every element in log variable will be 19times itself and + 0
-            % 4.75s stimuli + 0.25s ISI
-            stepSize = 0.25;
-            stimulusLength = 4.75;
-            stimMilliSeconds =[];
-            
-            for i =1:length(volumes)
-                
-                temp = repmat(stimTR(i),(stimulusLength/stepSize),1); %repmat 19 copies
-                temp = [temp; 0]; % add ISI as 0
-                stimMilliSeconds = [stimMilliSeconds; temp];
-                
-            end
-            
-            save(sprintf('logfiles/%s_logfile%d.mat',subject,irun),'rndNum_p','stimTR','stimMilliSeconds');
+            save(sprintf('logfiles/%s_logfile%d.mat',subject,irun),'rndNum_p','stimTR');
 
         end
         
@@ -84,10 +64,9 @@ switch action
             
             %% 250ms or TR? 
             nFrames = length(stimTR);
-           % nFrames = length(stim_ms); % 160 for TR stepsize, 3200 for 0.25s stepsize
-            % also nFrames = length(log)
-            scan.pos_list =stimTR; % log is from the logfile uploaded
-           % scan.pos_list =stim_ms;
+
+            scan.pos_list =stimTR; 
+
            
             %% creating empty grid
             mygrid = linspace(-70,70,101);
