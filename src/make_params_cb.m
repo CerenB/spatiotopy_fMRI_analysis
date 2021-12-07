@@ -13,21 +13,16 @@ function make_params_cb(action)
 % load('images_SSD_new.mat');
 
 blankimg = 1; % putting blank frames (e.g. frame#160) for 1-back response task
-subject = 'ChSc';
-group = 'EB';
+subject = 'AlSapilot';
+group = 'SC';
 irun = 7; %did it for 7 runs now, consider for 8 for DaZo
 
-pc = 1;
 %% set the paths
-if pc ==2
-    mainpath = sprintf('/Cerens_files/fMRI/Processed/Spatio_pRF/%s/%s/',group,subject);
-else
-    mainpath = sprintf('/Users/cerenbattal/Cerens_files/fMRI/Processed/Spatio_pRF/%s/%s/',group,subject);
-end
+mainpath = sprintf('/Volumes/extreme/Cerens_files/fMRI/Processed/Spatio_pRF/%s/%s/',group,subject);
 cd(mainpath);
 
-% preparing params file
-r=10;
+% radius
+r = 1;
 
 switch action
     
@@ -80,7 +75,7 @@ switch action
             %load(sprintf('%slogfiles/%s_logfile%d_250ms.mat',mainpath,subject,irun));
             
             %% original_stimulus
-            original_stimulus.images =images;
+            original_stimulus.images = images;
             
             %% seq = is sequence to take from images.mat
             

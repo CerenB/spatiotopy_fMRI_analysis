@@ -1,4 +1,4 @@
-function create_logfiles_pRF(action,pc)
+function create_logfiles_pRF(action)
 %cb edited on 16.10.2018 
 % this function created logfiles for pRF mrVista analysis.
 % for now it needs to be in the same folder as the .mat files.
@@ -11,67 +11,68 @@ function create_logfiles_pRF(action,pc)
 % for 0.25s stepsize is below
 
 
-%% THIS ABOT ADDING 27.02.2019
+% cb 27.02.2019
 % making logfiles - fMRI and Stimuli folders. 
 % transfering logfiles from spatiotopy_cer to fMRI 
 
+% cb 07.12.2021
+% general edit 
+
 %%
-subject = 'ChSc';
-group = 'EB'; 
+subject = 'AlSapilot';
+group = 'SC'; 
 
-if pc ==2
-    cd(sprintf('/Cerens_files/fMRI/Processed/Spatio_pRF/%s/%s/',group,subject));
+data = '/Volumes/extreme/Cerens_files/fMRI/Processed/Spatio_pRF/';
+mainpath = fullfile(data,group,subject);
+cd(mainpath);
 
-else
-    cd(sprintf('/Users/cerenbattal/Cerens_files/fMRI/Processed/Spatio_pRF/%s/%s/',group,subject));
-end
-
-gap = 12.5;
-TR = 2.5;
-irun = 7; %for DAZo
-
+gap = 12.5; %in seconds
+TR = 2.5; % in seconds
+irun = 7;
+ 
 %radius of your stimuli in space
-r = 10 ; %20 19.10.2018
+r = 1 ; 
 
 switch action
     case 1
         for irun = 1:irun
             
-            load(sprintf('logfiles/fMRI/%s_fMRI_pRF_%d.mat',subject,irun));
+            logfile = [subject(1:end-5), '_fMRI_pRF_', num2str(irun)];
+            load(fullfile(mainpath,'logfiles/fMRI/', logfile), 'rndNum_p');
             
             
             % pause at 24, 48, 72 --> 48, 96, 144
             % now zeros are 12.5 s / 2.5 = 5 zeros
-            add_zeros = zeros((gap)/TR,1);
-            stim_array = reshape(repmat(rndNum_p,[2,1]),[1, length(rndNum_p)*2]);
-            with_zeros = stim_array';
+            zeroArray = zeros((gap)/TR,1);
+            stimArray = reshape(repmat(rndNum_p,[2,1]),[1, length(rndNum_p)*2]);
+            stimArrayWithZeros = stimArray';
             
-            with_zerosA = [with_zeros(1:48); add_zeros];
-            with_zerosA = [with_zerosA; with_zeros(49:96); add_zeros];
-            with_zeros = [with_zerosA; with_zeros(97:end); add_zeros; 0];
+            % insert zeros in to gaps
+            tempArray = [stimArrayWithZeros(1:48); zeroArray];
+            tempArray = [tempArray; stimArrayWithZeros(49:96); zeroArray];
+            stimArrayWithZeros = [tempArray; stimArrayWithZeros(97:end); zeroArray; 0];
             
             %% with TR inserted: stim_tr
             
-            num = 1:160;
-            stim_tr = with_zeros;
+            volumes = 1:160;
+            stimTR = stimArrayWithZeros;
             
             %% with 0.25s stepsize : stim_ms
             % every element in log variable will be 19times itself and + 0
             % 4.75s stimuli + 0.25s ISI
-            stepsize = 0.25;
-            stimlen = 4.75;
-            stim_ms =[];
+            stepSize = 0.25;
+            stimulusLength = 4.75;
+            stimMilliSeconds =[];
             
-            for i =1:length(num)
+            for i =1:length(volumes)
                 
-                temp = repmat(stim_tr(i),(stimlen/stepsize),1); %repmat 19 copies
+                temp = repmat(stimTR(i),(stimulusLength/stepSize),1); %repmat 19 copies
                 temp = [temp; 0]; % add ISI as 0
-                stim_ms = [stim_ms; temp];
+                stimMilliSeconds = [stimMilliSeconds; temp];
                 
             end
             
-            save(sprintf('logfiles/%s_logfile%d.mat',subject,irun),'rndNum_p','stim_tr','stim_ms');
-            %save(sprintf('%s_logfile%d_250ms.mat',subject,irun),'rndNum_p','stim_tr','stim_ms');
+            save(sprintf('logfiles/%s_logfile%d.mat',subject,irun),'rndNum_p','stimTR','stimMilliSeconds');
 
         end
         
@@ -79,14 +80,13 @@ switch action
         
         for id = 1:irun
             load_log = sprintf('logfiles/%s_logfile%d.mat',subject,id);
-            %load_log = sprintf('logfiles/%s_logfile%d_250ms.mat',subject,id);
             load(load_log);
             
             %% 250ms or TR? 
-            nFrames = length(stim_tr);
+            nFrames = length(stimTR);
            % nFrames = length(stim_ms); % 160 for TR stepsize, 3200 for 0.25s stepsize
             % also nFrames = length(log)
-            scan.pos_list =stim_tr; % log is from the logfile uploaded
+            scan.pos_list =stimTR; % log is from the logfile uploaded
            % scan.pos_list =stim_ms;
            
             %% creating empty grid
