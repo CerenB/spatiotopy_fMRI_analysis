@@ -1,4 +1,4 @@
-function create_logfiles_pRF(action)
+function create_pRFlogfiles_01(action)
 %cb edited on 16.10.2018 
 % this function created logfiles for pRF mrVista analysis.
 % for now it needs to be in the same folder as the .mat files.

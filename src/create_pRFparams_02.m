@@ -1,4 +1,4 @@
-function make_params_cb(action)
+function create_pRFparams_02(action)
 
 % action == 1 prepares 1 averaged images.mat and params.mat files. 
 % action == 2 prepares params file per run
@@ -9,7 +9,7 @@ function make_params_cb(action)
 % load('images_SSD_new.mat');
 
 % CB 18.10.2018 makes params.mat file for the pRF analysis
-% general edit on 07.12.2021 
+% CB 07.12.2021 general edit on 
 
 
 
@@ -24,7 +24,7 @@ mainpath = fullfile(data,group,subject);
 
 switch action
     
-% create average image and params  
+% create average image and params - in mrVista style
     case 1
         
         ims = 0;
@@ -33,7 +33,7 @@ switch action
             matFileName =  ['images_pRF_run',num2str(iRun)];
             temp = load(fullfile(mainpath,'Stimuli', matFileName), 'images');
             
-            %average images across runs
+            % average images across runs
             ims = ims + temp.images;
             
         end
@@ -44,14 +44,14 @@ switch action
         save(fullfile(mainpath, 'Stimuli',newMatFile),'images');
         
 
-        % params
+        % original stimulus save it in - mrVista style
         original_stimulus.images = images;
-        seq = 1:160;
-        original_stimulus.seq = seq;
+        frames = 1:160;
+        original_stimulus.seq = frames;
         
         %% timing
-        seqtiming = 0:2.5:398;
-        original_stimulus.seqtiming =seqtiming;
+        seqTiming = 0:2.5:398;
+        original_stimulus.seqtiming = seqTiming;
         
         %% params
         tr = 2.5;
@@ -59,13 +59,13 @@ switch action
         params.tr = tr;
         params.frameperiod = frameperiod;
         
-        %% stimulus
+        %% stimulus - mrVista style
         % load cmap for color code later on
         stimulus.cmap = load(fullfile(mainpath,'Stimuli','cmap.mat'), 'cmap');
-        stimulus.seq = seq;
-        stimulus.seqtiming = seqtiming;
+        stimulus.seq = frames;
+        stimulus.seqtiming = seqTiming;
         
-        save(sprintf('Stimuli/params_tr_average_r%d.mat',r), 'original_stimulus', 'params','stimulus');
+        save(sprintf('Stimuli/params_tr_average.mat'), 'original_stimulus', 'params','stimulus');
 
 % create average image and params  for each run separately      
     case 2 
@@ -73,14 +73,13 @@ switch action
         for runNb = 1:runNb
             
             load(sprintf('Stimuli/images_pRF_run%d_r%d.mat',runNb,r));
-            %load(sprintf('%slogfiles/%s_logfile%d_250ms.mat',mainpath,subject,irun));
             
-            %% original_stimulus
+            % original_stimulus
             original_stimulus.images = images;
             
-            %% seq = is sequence to take from images.mat
+            % seq = is sequence to take from images.mat
             
-            seq = 1:160;
+            frames = 1:160;
             % could be inserted 163, it was 160 19.10.2018, and later on these 3 images/frames could be discarded
             
             % mini-check point to put 160 (black -0 image in images.mat)
@@ -91,18 +90,18 @@ switch action
                 
                 for jj = 3:160
                     if stim_tr(jj) == stim_tr(jj-2)
-                        seq(jj) = 160;
+                        frames(jj) = 160;
                     end
                 end
                 
             end
             
             
-            original_stimulus.seq = seq;
+            original_stimulus.seq = frames;
             
             %% timing
-            seqtiming = 0:2.5:398;
-            original_stimulus.seqtiming = seqtiming;
+            seqTiming = 0:2.5:398;
+            original_stimulus.seqtiming = seqTiming;
             
             %% params
             tr = 2.5;
@@ -114,15 +113,14 @@ switch action
             % cmap
             load('Stimuli/cmap.mat');
             stimulus.cmap = cmap;
-            stimulus.seq = seq;
-            stimulus.seqtiming = seqtiming;
+            stimulus.seq = frames;
+            stimulus.seqtiming = seqTiming;
             
             %% save files
             if blankimg == 0
                 save(sprintf('Stimuli/params_tr_run%d_withresponse.mat',runNb), 'original_stimulus', 'params','stimulus');
             else
-                save(sprintf('Stimuli/params_tr_run%d_r%d.mat',runNb,r), 'original_stimulus', 'params','stimulus');
-                %save(sprintf('Stimuli_r%d/params_tr_run%d_r%d.mat',r,irun,r), 'original_stimulus', 'params','stimulus');
+                save(sprintf('Stimuli/params_tr_run%d.mat',runNb), 'original_stimulus', 'params','stimulus');
                 
             end
             
@@ -142,30 +140,3 @@ switch action
 end
 
 end
-% %% try - with real time
-% %though we only have every 5 s - every stimuli onset recordings
-% load(sprintf('%slogfiles/fMRI/AlSa_fMRI_pRF_%d.mat',mainpath,irun));
-% TR = 2.5;
-% temp =[];
-% onset5s = onset(:,1);
-% 
-% for k = 1: length(onset5s)
-%     
-%     
-%     if k ==49 || k == 103 || k ==155
-%         
-%         for kk = 1:5
-%             temp = [temp onset5s(k-1)+TR];
-%         end
-%         
-%     else
-%         
-%         if mod(k) ==1
-%             temp = [temp onset5s(k)];
-%         elseif mod(k) ==0
-%             temp = [temp (onset5s(k-1)+TR)];
-%         end
-%         
-%     end
-%     
-% end
