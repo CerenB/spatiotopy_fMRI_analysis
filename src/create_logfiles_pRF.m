@@ -21,7 +21,6 @@ group = 'SC';
 
 data = '/Volumes/extreme/Cerens_files/fMRI/Processed/Spatio_pRF/';
 mainpath = fullfile(data,group,subject);
-cd(mainpath);
 
 gap = 12.5; % in seconds
 TR = 2.5; % in seconds
@@ -40,20 +39,23 @@ switch action
             load(fullfile(mainpath,'logfiles/fMRI/', logfileName), 'rndNum_p');
             
             
-            % pause at 24, 48, 72 --> 48, 96, 144
+            % pause at 24, 48, 72 trials --> 48, 96, 144 volumes/frames
             % now zeros are 12.5 s / 2.5 = 5 zeros
             zeroArray = zeros((gap)/TR,1);
-            stimArray = reshape(repmat(rndNum_p,[2,1]),[1, length(rndNum_p)*2]);
-            stimArrayWithZeros = stimArray';
+            stimulusArray = reshape(repmat(rndNum_p,[2,1]),[1, length(rndNum_p)*2]);
+            stimulusArrayWithZeros = stimulusArray';
             
-            % insert zeros in to gaps
-            tempArray = [stimArrayWithZeros(1:48); zeroArray];
-            tempArray = [tempArray; stimArrayWithZeros(49:96); zeroArray];
-            stimTR = [tempArray; stimArrayWithZeros(97:end); zeroArray; 0];
+            % insert zeros into gaps
+            tempArray = [stimulusArrayWithZeros(1:48); zeroArray];
+            tempArray = [tempArray; stimulusArrayWithZeros(49:96); zeroArray];
+            
+            % creating stimulus order (1:8 labeling with zeros indicating
+            % gaps)
+            stimOrder = [tempArray; stimulusArrayWithZeros(97:end); zeroArray; 0];
             
             % save
             newMatFile = [subject,'_logfile', num2str(iRun)];
-            save(fullfile(mainpath, 'logfiles',newMatFile),'rndNum_p','stimTR');
+            save(fullfile(mainpath, 'logfiles',newMatFile),'rndNum_p','stimOrder');
             
         end
         
@@ -63,19 +65,17 @@ switch action
 
             % load the mat file
             matFile = [subject, '_logfile', num2str(iRun)];
-            load(fullfile(mainpath,'logfiles', matFile), 'stimTR');
+            load(fullfile(mainpath,'logfiles', matFile), 'stimOrder');
             
             % assign stimuli into number of frames
-            frameNb = length(stimTR);
-
-            scan.pos_list = stimTR; 
+            frameNb = length(stimOrder); %#ok<NODEF>
 
             
             %% inserting 1s into stimuli grid
             if stimuliType == 1
                 
                 %radius of your stimuli in space
-                raduis = 10;
+                radius = 10;
                 
                 %grid dimension
                 gridDimension = 101;
@@ -90,37 +90,37 @@ switch action
                 center_45deg = center_90deg/sqrt(2);
                 
                 for iFrame = 1:frameNb
-                    if scan.pos_list(iFrame) == 1 % UP 90deg
-                        C = sqrt((x).^2+(y-center_90deg).^2)<=raduis;
+                    if stimOrder(iFrame) == 1 % UP 90deg
+                        C = sqrt((x).^2+(y-center_90deg).^2)<=radius;
                         stimImg(C,iFrame)=1;
                     end
-                    if scan.pos_list(iFrame) == 2 % RU 45deg
-                        C = sqrt((x-center_45deg).^2+(y-center_45deg).^2)<=raduis;
+                    if stimOrder(iFrame) == 2 % RU 45deg
+                        C = sqrt((x-center_45deg).^2+(y-center_45deg).^2)<=radius;
                         stimImg(C,iFrame)=1;
                     end
-                    if scan.pos_list(iFrame) == 3 % Right 0deg
-                        C = sqrt((x-center_90deg).^2+(y).^2)<=raduis;
-                        stimImg(C,iFrame)=1;%stimImg(((nTimepoints-range):nTimepoints),i) = 1;
-                    end
-                    if scan.pos_list(iFrame) == 4 % RD 315deg
-                        C = sqrt((x-center_45deg).^2+(y+center_45deg).^2)<=raduis;
+                    if stimOrder(iFrame) == 3 % Right 0deg
+                        C = sqrt((x-center_90deg).^2+(y).^2)<=radius;
                         stimImg(C,iFrame)=1;
                     end
-                    if scan.pos_list(iFrame) == 5 % DOWN 270deg
-                        C = sqrt((x).^2+(y+center_90deg).^2)<=raduis;
+                    if stimOrder(iFrame) == 4 % RD 315deg
+                        C = sqrt((x-center_45deg).^2+(y+center_45deg).^2)<=radius;
                         stimImg(C,iFrame)=1;
                     end
-                    if scan.pos_list(iFrame) == 6 % LD 225deg
-                        C = sqrt((x+center_45deg).^2+(y+center_45deg).^2)<=raduis;
+                    if stimOrder(iFrame) == 5 % DOWN 270deg
+                        C = sqrt((x).^2+(y+center_90deg).^2)<=radius;
                         stimImg(C,iFrame)=1;
                     end
-                    if scan.pos_list(iFrame) == 7 % Left 180deg
-                        C = sqrt((x+center_90deg).^2+(y).^2)<=raduis;
+                    if stimOrder(iFrame) == 6 % LD 225deg
+                        C = sqrt((x+center_45deg).^2+(y+center_45deg).^2)<=radius;
+                        stimImg(C,iFrame)=1;
+                    end
+                    if stimOrder(iFrame) == 7 % Left 180deg
+                        C = sqrt((x+center_90deg).^2+(y).^2)<=radius;
                         
                         stimImg(C,iFrame)=1;
                     end
-                    if scan.pos_list(iFrame) == 8 % LU 135deg
-                        C = sqrt((x+center_45deg).^2+(y-center_45deg).^2)<=raduis;
+                    if stimOrder(iFrame) == 8 % LU 135deg
+                        C = sqrt((x+center_45deg).^2+(y-center_45deg).^2)<=radius;
                         stimImg(C,iFrame)=1;
                         
                     end
@@ -132,7 +132,7 @@ switch action
             end
             
             % visualisation
-            for iFrame = 1:nFrames
+            for iFrame = 1:frameNb
                 figure(100)
                 imagesc(images(:,:,iFrame) );
                 colormap gray
@@ -154,51 +154,51 @@ switch action
                 
                 %create zero grid
                 myGrid = linspace(-1,1,gridDimension);
-                [x,y] = meshgrid(myGrid, -myGrid);
 
                 stimImg = zeros(length(myGrid),length(myGrid),frameNb);
                 
                 for iFrame = 1:frameNb
-                    if scan.pos_list(iFrame) == 1 % UP 90deg
+                    if stimOrder(iFrame) == 1 % UP 90deg
                         stimImg(1,3,iFrame)=1;
                     end
-                    if scan.pos_list(iFrame) == 2 % RU 45deg
+                    if stimOrder(iFrame) == 2 % RU 45deg
                         stimImg(2,4,iFrame)=1;
                     end
-                    if scan.pos_list(iFrame) == 3 % Right 0deg
+                    if stimOrder(iFrame) == 3 % Right 0deg
                         stimImg(3,5,iFrame)=1;
                     end
-                    if scan.pos_list(iFrame) == 4 % RD 315deg
+                    if stimOrder(iFrame) == 4 % RD 315deg
                         stimImg(4,4,iFrame)=1;
                     end
-                    if scan.pos_list(iFrame) == 5 % DOWN 270deg
+                    if stimOrder(iFrame) == 5 % DOWN 270deg
                         stimImg(5,3,iFrame)=1;
                     end
-                    if scan.pos_list(iFrame) == 6 % LD 225deg
+                    if stimOrder(iFrame) == 6 % LD 225deg
                         stimImg(4,2,iFrame)=1;
                     end
-                    if scan.pos_list(iFrame) == 7 % Left 180deg                        
+                    if stimOrder(iFrame) == 7 % Left 180deg                        
                         stimImg(3,1,iFrame)=1;
                     end
-                    if scan.pos_list(iFrame) == 8 % LU 135deg
+                    if stimOrder(iFrame) == 8 % LU 135deg
                         stimImg(2,2,iFrame)=1;
                         
                     end
                 end
             end
             
-            
-            % visualisation
-            for iFrames = 1:nFrames
-                figure(100)
-                imagesc(stimImg(:,:,iFrames));
-                colormap gray
-                axis square
-                drawnow
-                pause(0.1)
-            end
+%             
+%             % visualisation
+%             for iFrames = 1:frameNb
+%                 figure(100)
+%                 imagesc(stimImg(:,:,iFrames));
+%                 colormap gray
+%                 axis square
+%                 drawnow
+%                 pause(0.1)
+%             end
 
-            % save
+            % save as pRF analysis would like to have
+            images = stimImg;
             newMatFile = ['images_pRF_run',num2str(iRun)];
             save(fullfile(mainpath, 'Stimuli',newMatFile),'images');
             
