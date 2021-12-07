@@ -46,6 +46,8 @@ switch action
 
         % original stimulus save it in - mrVista style
         original_stimulus.images = images;
+        
+        % seq = is sequence to take from images.mat
         frames = 1:160;
         original_stimulus.seq = frames;
         
@@ -65,35 +67,36 @@ switch action
         stimulus.seq = frames;
         stimulus.seqtiming = seqTiming;
         
-        save(sprintf('Stimuli/params_tr_average.mat'), 'original_stimulus', 'params','stimulus');
+        newMatFile = 'params_tr_average.mat';
+        save(fullfile(mainpath,'Stimuli',newMatFile), 'original_stimulus', 'params','stimulus');
 
 % create average image and params  for each run separately      
     case 2 
         
         for runNb = 1:runNb
             
-            load(sprintf('Stimuli/images_pRF_run%d_r%d.mat',runNb,r));
+            % load images
+            matFileName = [images_pRF_run', num2str(runNb), '.mat'];
+            load(fullfile(mainpath,'Stimuli',matFileName), 'images');
             
-            % original_stimulus
-            original_stimulus.images = images;
-            
-            % seq = is sequence to take from images.mat
-            
+            % save images into original_stimulus
+            original_stimulus.images = images; %#ok<NODEF>
+
+            % could be inserted 163, it was 160 19.10.2018, 
+            % and later on these 3 images/frames could be discarded
             frames = 1:160;
-            % could be inserted 163, it was 160 19.10.2018, and later on these 3 images/frames could be discarded
             
             % mini-check point to put 160 (black -0 image in images.mat)
             % for the response pressed 1-back task
-            
             load(sprintf('%slogfiles/%s_logfile%d.mat',mainpath,subject,runNb));
             if blankimg == 1
-                
-                for jj = 3:160
-                    if stim_tr(jj) == stim_tr(jj-2)
-                        frames(jj) = 160;
-                    end
+            
+            for jj = 3:160
+                if stim_tr(jj) == stim_tr(jj-2)
+                    frames(jj) = 160;
                 end
-                
+            end
+            
             end
             
             
@@ -105,7 +108,7 @@ switch action
             
             %% params
             tr = 2.5;
-            frameperiod = 2.5; %%%%%%%% ?
+            frameperiod = 2.5;
             params.tr = tr;
             params.frameperiod = frameperiod;
             
