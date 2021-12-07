@@ -5,20 +5,17 @@ function create_logfiles_pRF(action)
 % for now, it only makes TR -- condition onset files
 % later on actualy time (in seconds) ca nbe added)
 
-% action ==1 only logfiles - with TR
-% action ==2 creates stimuli space across time -- no need - look at script, for TR stepsize:
-% makeWedge_cb.m /Users/cerenbattal/Dropbox/Cerens_files/scripts/spatiotopy_code
-% for 0.25s stepsize is below
-
+% action == 1 makes stimTR with the logfile as input
+% action == 2 makes stimuli space across time 
 
 % cb 27.02.2019
 % making logfiles - fMRI and Stimuli folders. 
 % transfering logfiles from spatiotopy_cer to fMRI 
 
 % cb 07.12.2021
-% general edit 
+% general edit + replacing sphere with a grid of 5x5x160 grid
 
-%%
+%% set parameters
 subject = 'AlSapilot';
 group = 'SC'; 
 
@@ -26,26 +23,21 @@ data = '/Volumes/extreme/Cerens_files/fMRI/Processed/Spatio_pRF/';
 mainpath = fullfile(data,group,subject);
 cd(mainpath);
 
-gap = 12.5; %in seconds
+gap = 12.5; % in seconds
 TR = 2.5; % in seconds
 runNb = 7;
  
-%radius of your stimuli in space
-raduis = 1 ; 
-
-%grid dimension
-gridDimension = 5;
-
 % stimuli type = 1, it's circular
 % stimuli type = 2, it's one point in the grid
 stimuliType = 2;
 
+%% let's beging
 switch action
     case 1
         for iRun = 1:runNb
             
-            logfile = [subject(1:end-5), '_fMRI_pRF_', num2str(iRun)];
-            load(fullfile(mainpath,'logfiles/fMRI/', logfile), 'rndNum_p');
+            logfileName = [subject(1:end-5), '_fMRI_pRF_', num2str(iRun)];
+            load(fullfile(mainpath,'logfiles/fMRI/', logfileName), 'rndNum_p');
             
             
             % pause at 24, 48, 72 --> 48, 96, 144
@@ -59,8 +51,10 @@ switch action
             tempArray = [tempArray; stimArrayWithZeros(49:96); zeroArray];
             stimTR = [tempArray; stimArrayWithZeros(97:end); zeroArray; 0];
             
-            save(sprintf('logfiles/%s_logfile%d.mat',subject,iRun),'rndNum_p','stimTR');
-
+            % save
+            newMatFile = [subject,'_logfile', num2str(iRun)];
+            save(fullfile(mainpath, 'logfiles',newMatFile),'rndNum_p','stimTR');
+            
         end
         
     case 2
@@ -76,13 +70,17 @@ switch action
 
             scan.pos_list = stimTR; 
 
-           
-            %% creating empty grid
-            
             
             %% inserting 1s into stimuli grid
             if stimuliType == 1
                 
+                %radius of your stimuli in space
+                raduis = 10;
+                
+                %grid dimension
+                gridDimension = 101;
+                
+                % create empty grid
                 myGrid = linspace(-70,70,gridDimension);
                 [x,y] = meshgrid(myGrid, -myGrid);
 
@@ -128,8 +126,33 @@ switch action
                     end
                 end
                 
-            elseif stimuliType == 2
+            % restucture our stim space
+            for iFrame = 1:frameNb
+                images(:,:,iFrame) = reshape(stimImg(:,iFrame),gridDimension,gridDimension);
+            end
+            
+            % visualisation
+            for iFrame = 1:nFrames
+                figure(100)
+                imagesc(images(:,:,iFrame) );
+                colormap gray
+                axis square
+                drawnow
+                pause(0.1)
+            end
+            
+            % save           
+            newMatFile = ['images_pRF_run',num2str(iRun), '_r', num2str(radius)];
+            save(fullfile(mainpath, 'Stimuli',newMatFile),'images');
+
                 
+            
+            elseif stimuliType == 2
+
+                %grid dimension
+                gridDimension = 5;
+                
+                %create zero grid
                 myGrid = linspace(-1,1,gridDimension);
                 [x,y] = meshgrid(myGrid, -myGrid);
 
@@ -165,33 +188,19 @@ switch action
             end
             
             
-            %% CB 17.10.2018 save - reorganized sttimImg to images.mat
-            % restucture our stim space
-            for iFrame = 1:frameNb
-                images(:,:,iFrame) = reshape(stimImg(:,iFrame),gridDimension,gridDimension);
+            % visualisation
+            for iFrames = 1:nFrames
+                figure(100)
+                imagesc(stimImg(:,:,iFrames));
+                colormap gray
+                axis square
+                drawnow
+                pause(0.1)
             end
-            
-            
-%             for i = 1:nFrames
-%                 figure(100)
-%                 imagesc(reshape(stimImg(:,i),101,101));
-%                 colormap gray
-%                 axis square
-%                 drawnow
-%                 pause(0.1)
-%             end
 
-for i=1:nFrames
-    figure(100)
-    imagesc(stimImg(:,:,i));
-    colormap gray
-    axis square
-    drawnow
-    pause(0.1)
-end
-
-
-            save(sprintf('Stimuli/images_pRF_run%d_r%d.mat',iRun,raduis),'images');
+            % save
+            newMatFile = ['images_pRF_run',num2str(iRun)];
+            save(fullfile(mainpath, 'Stimuli',newMatFile),'images');
             
         end
 end
