@@ -22,7 +22,8 @@ mainpath = fullfile(data,group,subject);
 
 switch action
     
-% create average image and "default" params, stimulus - in mrVista style
+% create average image , stimulus - in mrVista style
+% this part will not work with 9images - let's not run it now
     case 1
         
         ims = 0;
@@ -74,7 +75,7 @@ switch action
         for iRun = 1:runNb
             
             % load images
-            matFileName = ['images_pRF_run', num2str(iRun), '.mat'];
+            matFileName = 'images_pRF';
             load(fullfile(mainpath,'Stimuli',matFileName), 'images');
             
             % save images into original_stimulus
@@ -93,15 +94,15 @@ switch action
             % read from logfile how the stim was presented
             frames = stimOrder;
             
+            % replace zeros with label 9
+            % images(:,:,9) would be with zeros
+            frames(frames == 0) = 9;
+            
             % mini-check point to assign response/button press to number 160 
             % 160 corresponds to "blank/zero image" in images.mat
             % we we label button press to "zero image".
             if labelForResponse == 1
-                
-                % replace zeros with label 9
-                % images(:,:,9) would be with zeros
-                frames(frames == 0) = 9;
-                    
+
                 for iStim = 3:160
 
                     if stimOrder(iStim) == stimOrder(iStim-2) && stimOrder(iStim)~=9
@@ -131,7 +132,7 @@ switch action
             stimulus.seqtiming = seqTiming;
             
             %% save files
-            if labelForResponse == 0
+            if labelForResponse == 1
                 newMatFile = ['params_tr_run', num2str(iRun),'_response.mat'];
             else
                 newMatFile = ['params_tr_run', num2str(iRun),'.mat'];
