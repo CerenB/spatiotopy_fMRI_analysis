@@ -11,8 +11,6 @@ function create_pRFparams_02(action)
 % CB 18.10.2018 makes params.mat file for the pRF analysis
 % CB 07.12.2021 general edit on 
 
-
-
 blankimg = 1; % putting blank frames (e.g. frame#160) for 1-back response task
 subject = 'AlSapilot';
 group = 'SC';
@@ -24,7 +22,7 @@ mainpath = fullfile(data,group,subject);
 
 switch action
     
-% create average image and params - in mrVista style
+% create average image and "default" params, stimulus - in mrVista style
     case 1
         
         ims = 0;
@@ -73,35 +71,48 @@ switch action
 % create average image and params  for each run separately      
     case 2 
         
-        for runNb = 1:runNb
+        for iRun = 1:runNb
             
             % load images
-            matFileName = [images_pRF_run', num2str(runNb), '.mat'];
+            matFileName = ['images_pRF_run', num2str(iRun), '.mat'];
             load(fullfile(mainpath,'Stimuli',matFileName), 'images');
             
             % save images into original_stimulus
             original_stimulus.images = images; %#ok<NODEF>
 
-            % could be inserted 163, it was 160 19.10.2018, 
-            % and later on these 3 images/frames could be discarded
-            frames = 1:160;
+            % could be inserted 163, it is set to 160
+            % later on these 3 images/frame is discarded in mrVista
+            % preprocessing
+            matFileName = [subject,'_logfile', num2str(iRun)];
+            load(fullfile(mainpath, 'logfiles',matFileName),'stimOrder');
             
-            % mini-check point to put 160 (black -0 image in images.mat)
-            % for the response pressed 1-back task
-            load(sprintf('%slogfiles/%s_logfile%d.mat',mainpath,subject,runNb));
+            % old way
+            % frames = 1:160;
+            
+            % new way - 07.12.2021
+            % read from logfile how the stim was presented
+            frames = stimOrder;
+            
+            % mini-check point to assign response/button press to number 160 
+            % 160 corresponds to "blank/zero image" in images.mat
+            % we we label button press to "zero image".
             if blankimg == 1
-            
-            for jj = 3:160
-                if stim_tr(jj) == stim_tr(jj-2)
-                    frames(jj) = 160;
+                
+                % replace zeros with label 9
+                % images(:,:,9) would be with zeros
+                frames(frames == 0) = 9;
+                    
+                for iStim = 3:160
+
+                    if stimOrder(iStim) == stimOrder(iStim-2) && stimOrder(iStim)~=9
+                        frames(iStim) = 9;
+                    end
                 end
+                
             end
-            
-            end
-            
-            
+
             original_stimulus.seq = frames;
-            
+
             %% timing
             seqTiming = 0:2.5:398;
             original_stimulus.seqtiming = seqTiming;
@@ -114,21 +125,23 @@ switch action
             
             %% stimulus
             % cmap
-            load('Stimuli/cmap.mat');
+            load(fullfile(mainpath, 'Stimuli','cmap'),'cmap');
             stimulus.cmap = cmap;
             stimulus.seq = frames;
             stimulus.seqtiming = seqTiming;
             
             %% save files
             if blankimg == 0
-                save(sprintf('Stimuli/params_tr_run%d_withresponse.mat',runNb), 'original_stimulus', 'params','stimulus');
+                newMatFile = ['params_tr_run', num2str(iRun),'_response.mat'];
             else
-                save(sprintf('Stimuli/params_tr_run%d.mat',runNb), 'original_stimulus', 'params','stimulus');
-                
+                newMatFile = ['params_tr_run', num2str(iRun),'.mat'];
             end
+            save(fullfile(mainpath, 'Stimuli',newMatFile), 'original_stimulus', 'params','stimulus');
+
+            % visualisation
+            figure; plot(stimulus.seq)
             
-            
-%             for i = 1:160 %1:2:160
+%             for i = 1:160
 %                     figure(100);
 %                     imagesc(images(:,:,seq(i)));
 %                     colormap gray

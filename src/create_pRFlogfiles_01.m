@@ -51,7 +51,7 @@ switch action
             
             % creating stimulus order (1:8 labeling with zeros indicating
             % gaps)
-            stimOrder = [tempArray; stimulusArrayWithZeros(97:end); zeroArray; 0];
+            stimOrder = [tempArray; stimulusArrayWithZeros(97:end); zeroArray; 0]; %#ok<NASGU>
             
             % save
             newMatFile = [subject,'_logfile', num2str(iRun)];
@@ -68,8 +68,11 @@ switch action
             load(fullfile(mainpath,'logfiles', matFile), 'stimOrder');
             
             % assign stimuli into number of frames
-            frameNb = length(stimOrder); %#ok<NODEF>
+%             frameNb = length(stimOrder); 
+            frameNb = length(unique(stimOrder)); 
 
+            % change 0 into 9 labelling for silences
+            stimOrder(stimOrder == 0) = 9;
             
             %% inserting 1s into stimuli grid
             if stimuliType == 1
@@ -124,6 +127,12 @@ switch action
                         stimImg(C,iFrame)=1;
                         
                     end
+                    
+                    if stimOrder(iFrame) == 9 % silences
+                        C = sqrt((x+center_45deg).^2+(y-center_45deg).^2)<=radius;
+                        stimImg(C,iFrame)=0;
+                        
+                    end
                 end
                 
             % restucture our stim space
@@ -158,28 +167,28 @@ switch action
                 stimImg = zeros(length(myGrid),length(myGrid),frameNb);
                 
                 for iFrame = 1:frameNb
-                    if stimOrder(iFrame) == 1 % UP 90deg
+                    if iFrame == 1 % UP 90deg
                         stimImg(1,3,iFrame)=1;
                     end
-                    if stimOrder(iFrame) == 2 % RU 45deg
+                    if iFrame == 2 % RU 45deg
                         stimImg(2,4,iFrame)=1;
                     end
-                    if stimOrder(iFrame) == 3 % Right 0deg
+                    if iFrame == 3 % Right 0deg
                         stimImg(3,5,iFrame)=1;
                     end
-                    if stimOrder(iFrame) == 4 % RD 315deg
+                    if iFrame == 4 % RD 315deg
                         stimImg(4,4,iFrame)=1;
                     end
-                    if stimOrder(iFrame) == 5 % DOWN 270deg
+                    if iFrame == 5 % DOWN 270deg
                         stimImg(5,3,iFrame)=1;
                     end
-                    if stimOrder(iFrame) == 6 % LD 225deg
+                    if iFrame == 6 % LD 225deg
                         stimImg(4,2,iFrame)=1;
                     end
-                    if stimOrder(iFrame) == 7 % Left 180deg                        
+                    if iFrame == 7 % Left 180deg                        
                         stimImg(3,1,iFrame)=1;
                     end
-                    if stimOrder(iFrame) == 8 % LU 135deg
+                    if iFrame == 8 % LU 135deg
                         stimImg(2,2,iFrame)=1;
                         
                     end
