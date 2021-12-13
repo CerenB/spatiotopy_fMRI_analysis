@@ -2,13 +2,15 @@
 clear all;
 close all;
 
+subject = 'AnTo';
+
 pc = 2;
 mrvistaPath = '/data2/spatiotopy/code/vistasoft';
-subjectPath = '/data2/spatiotopy/raw/SC/AlSapilot';
+subjectPath = ['/data2/spatiotopy/raw/SC/',subject];
 
 if pc == 1
     mrvistaPath = '/Users/battal/Documents/MATLAB/vistasoft';
-    subjectPath = '/Volumes/extreme/Cerens_files/fMRI/Processed/Spatio_pRF/SC/AlSapilot';
+    subjectPath = ['/Volumes/extreme/Cerens_files/fMRI/Processed/Spatio_pRF/SC/', subject];
 
 end
 %add path mrvista
@@ -19,7 +21,7 @@ cd(subjectPath);
 
 
 % 08.12.2021
-rmMain([1 7],[],1,'model',{'one gaussian'},'hrf',...
+rmMain([1 6],[],1,'model',{'one gaussian'},'hrf',...
     {'t',[5.4000 5.2000 10.8000 7.3500 0.35000]},...
     'matfilename','ONEGAUSSIAN_wholebrain', ...
     'stimx', [-1 -1/sqrt(2) 0 1/sqrt(2) 1], 'stimy', [-1 -1/sqrt(2) 0 1/sqrt(2) 1], ...
