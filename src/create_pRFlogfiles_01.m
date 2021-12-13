@@ -16,7 +16,7 @@ function create_pRFlogfiles_01(action)
 % general edit + replacing sphere with a grid of 5x5x160 grid
 
 %% set parameters
-subject = 'AlSapilot';
+subject = 'DaBe';
 group = 'SC';
 
 data = '/Volumes/extreme/Cerens_files/fMRI/Processed/Spatio_pRF/';
@@ -36,7 +36,7 @@ switch action
     case 1
         for iRun = 1:runNb
             
-            logfileName = [subject(1:end-5), '_fMRI_pRF_', num2str(iRun)];
+            logfileName = [subject, '_fMRI_pRF_', num2str(iRun)]; % AlSapilot = subject(1:end-5)
             load(fullfile(mainpath,'logfiles/fMRI/', logfileName), 'rndNum_p');
             
             
