@@ -12,13 +12,13 @@ function create_pRFparams_02(action)
 % CB 07.12.2021 general edit on 
 
 %% set the paths
-subject = 'DaBe';
+subject = 'DaCe';
 group = 'SC';
 data = '/Volumes/extreme/Cerens_files/fMRI/Processed/Spatio_pRF/';
 mainpath = fullfile(data,group,subject);
 
 %% averageAllRun, averageOddRun, averageEvenRun
-averageType = 'Even'; %'Even', 'Odd', 'All'
+averageType = 'All'; %'Even', 'Odd', 'All'
 
 % average across runs, or even-odd runs?
 runNb = 7; % DaZo has 8 runs

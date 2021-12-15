@@ -16,7 +16,7 @@ function create_pRFlogfiles_01(action)
 % general edit + replacing sphere with a grid of 5x5x160 grid
 
 %% set parameters
-subject = 'DaBe';
+subject = 'DaCe';
 group = 'SC';
 
 data = '/Volumes/extreme/Cerens_files/fMRI/Processed/Spatio_pRF/';
