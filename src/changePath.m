@@ -2,7 +2,7 @@
 % changing dataTYPES input 
 
 % load a session from ubuntu PC
-oldSubject = 'AnTo';
+oldSubject = 'DaBe';
 load(['/Volumes/extreme/Cerens_files/fMRI/Processed/Spatio_pRF/SC/', ...
     oldSubject,'/studentUbuntu/mrSESSION.mat'])
 
@@ -10,7 +10,7 @@ load(['/Volumes/extreme/Cerens_files/fMRI/Processed/Spatio_pRF/SC/', ...
 individualRuns = dataTYPES(3).retinotopyModelParams;
 
 % save its datatypes - averaged runs
-averagedRuns = dataTYPES(6).retinotopyModelParams;
+averagedRuns = dataTYPES(5).retinotopyModelParams;
 
 % dataTYPES(7).retinotopyModelParams.imFile
 %  
@@ -20,7 +20,7 @@ averagedRuns = dataTYPES(6).retinotopyModelParams;
 
 
 %load new subject' session:
-subject = 'DaBe';
+subject = 'AnTo';
 mainPath =  '/Volumes/extreme/Cerens_files/fMRI/Processed/Spatio_pRF/SC/';
 path2Session = fullfile(mainPath,subject, 'studentUbuntu', 'mrSESSION.mat');
 load(path2Session)
