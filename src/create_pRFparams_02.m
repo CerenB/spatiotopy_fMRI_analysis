@@ -12,13 +12,13 @@ function create_pRFparams_02(action)
 % CB 07.12.2021 general edit on 
 
 %% set the paths
-subject = 'DaCe';
+subject = 'AlSa';
 group = 'SC';
 data = '/Volumes/extreme/Cerens_files/fMRI/Processed/Spatio_pRF/';
 mainpath = fullfile(data,group,subject);
 
 %% averageAllRun, averageOddRun, averageEvenRun
-averageType = 'All'; %'Even', 'Odd', 'All'
+averageType = 'Even'; %'Even', 'Odd', 'All'
 
 % average across runs, or even-odd runs?
 runNb = 7; % DaZo has 8 runs
@@ -116,17 +116,14 @@ switch action
         % create averaged images according to the individual params(stimulus.seq)
     case 2
         
+        %% load or predefine stuff
         volumeNb = 160;
+
+        % load the images
+        load(fullfile(mainpath,'Stimuli', 'images_pRF.mat'), 'images');
         
-        % find the averaging order
-        if strcmp(averageType, 'Even')
-            averageOrder = 2:2:7;
-        elseif strcmp(averageType, 'Odd')
-            averageOrder = 1:2:7;
-        elseif strcmp(averageType, 'All')
-            averageOrder = 1:runNb;
-            
-        end
+        % preallocate new images
+        imagesNew = zeros([size(images, 1), size(images, 2), volumeNb]);
         
         % loading image order == params (stimulus.seq)
         for iRun = 1:runNb
@@ -138,12 +135,17 @@ switch action
             stimOrder(:, iRun) = temp.stimulus.seq;
         end
         
-        % load the images
-        load(fullfile(mainpath,'Stimuli', 'images_pRF.mat'), 'images');
+        % find the averaging order
+        if strcmp(averageType, 'Even')
+            averageOrder = 2:2:7;
+        elseif strcmp(averageType, 'Odd')
+            averageOrder = 1:2:7;
+        elseif strcmp(averageType, 'All')
+            averageOrder = 1:runNb;
+            
+        end
         
-        % preallocate new images
-        imagesNew = zeros([size(images, 1), size(images, 2), volumeNb]);
-        
+        %% get to workin'
         % sum the images according to stimulus order across runs
         for iRun = averageOrder
             for iVol=1:volumeNb
@@ -167,7 +169,7 @@ switch action
         
         % save averagd images
         images = imagesNew;
-        save(fullfile(mainpath,'Stimuli','images_pRF_average'),'images');
+        save(fullfile(mainpath,'Stimuli',['images_pRF_average', averageType]),'images');
         
         % not sure if we need original_stimulus
         original_stimulus.images = images;
