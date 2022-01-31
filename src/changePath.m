@@ -19,7 +19,7 @@ averagedRuns = dataTYPES(5).retinotopyModelParams;
 
 
 %load new subject' session:
-subject = 'AnTo';
+subject = 'AlSapilot';
 mainPath =  '/Volumes/extreme/Cerens_files/fMRI/Processed/Spatio_pRF/SC/';
 path2Session = fullfile(mainPath,subject, 'studentUbuntu', 'mrSESSION.mat');
 load(path2Session)
@@ -72,7 +72,7 @@ end
 save(path2Session, 'mrSESSION', 'dataTYPES', 'vANATOMYPATH');
 
 %% assigned even and odd runs
-dataTypeInd = 7; % 7 is Odd runs, and 8 is even in AnTo
+dataTypeInd = 8; % 7 is Odd runs, and 8 is even in AnTo
 dataTYPES(dataTypeInd).retinotopyModelParams = averagedRuns;
 
 % now changed the paths:
@@ -89,7 +89,7 @@ dataTYPES(dataTypeInd).retinotopyModelParams.imFile = ...
 save(path2Session, 'mrSESSION', 'dataTYPES', 'vANATOMYPATH');
 
 % now even runs
-dataTypeInd = 8;
+dataTypeInd = 9;
 dataTYPES(dataTypeInd).retinotopyModelParams = averagedRuns;
 
 % now changed the paths:
