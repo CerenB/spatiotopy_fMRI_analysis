@@ -25,6 +25,7 @@ path2Session = fullfile(mainPath,subject, 'studentUbuntu', 'mrSESSION.mat');
 load(path2Session)
 
 % first check anatomical, is it OK?
+% for Alsa anatomical, assign subject == AlSa insead of AlSapilot
 vANATOMYPATH = ['/data2/spatiotopy/raw/SC/',subject,...
                 '/sSPATIO_pRF_',subject,'.nii'];
 
