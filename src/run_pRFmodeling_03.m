@@ -2,16 +2,20 @@
 clear all;
 close all;
 
-subject = 'AlSapilot';
+subject = 'AnTo';
 
-pc = 2;
+pc = 3;
 mrvistaPath = '/data2/spatiotopy/code/vistasoft';
 subjectPath = ['/data2/spatiotopy/raw/SC/',subject];
 
 if pc == 1
     mrvistaPath = '/Users/battal/Documents/MATLAB/vistasoft';
     subjectPath = ['/Volumes/extreme/Cerens_files/fMRI/Processed/Spatio_pRF/SC/', subject];
-
+    
+elseif pc ==3 % old macbook 
+     mrvistaPath = '/Users/cerenbattal/Documents/MATLAB/vistasoft-master';
+     subjectPath = ['/Volumes/extreme/Cerens_files/fMRI/Processed/Spatio_pRF/SC/', subject];
+ 
 end
 
 %add path mrvista
